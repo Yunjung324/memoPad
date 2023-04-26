@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoPad</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700&display=swap');
+
+        body{
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #537960;
+        }
+        main, section{
+            margin: 0;
+            padding: 0;
+        }
+        h1{
+            padding: 5px;
+            margin: 50px 0px;;
+            color : white;
+            text-align: center;
+        }
+        .memo-section{
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            width: 400px;
+            padding: 20px;
+            background-color: rgb(240, 214, 245);
+            box-shadow: 12px 12px rgb(199, 147, 212);
+            position: relative;
+        }
+        .memos-yellow{
+            background-color: cornsilk;
+        }
+        .memos-blue{
+            background-color: rgb(184, 230, 248);
+        }
+
+        .pin{
+            width: 50px;
+            position: absolute;
+            top: -13px;
+            left: 170px;
+        }
+        .save-btn{
+            margin-top: 13px;
+            border: 1px solid #ffffff;
+            background-color: rgb(191, 171, 243);
+            color : white;
+            border-radius: 10px;
+            height: 25px;
+        }
+        .save-btn:hover{
+            background-color: rgb(164, 136, 235);
+        }
+        .input-style{
+            border: none;
+            height: 20px;
+        }
+        .textarea-style{
+            border: none;
+            height: 200px;
+            resize: none;
+        }
+        #display{
+            margin-top: 40px;
+            /* display: flex;
+            flex-wrap: wrap;
+            flex-direction: row; */
+        }
+        .savepin{
+            width: 43px;
+            position: absolute;
+            top: -12px;
+            left: 40%;
+            transform: (-50%, -50%);
+            /* left: 190px; */
+        }
+        .edit-btn, .delete-btn{
+            margin-top: 13px;
+            border: 1px solid #ffffff;
+            background-color: rgb(155, 180, 128);
+            color : white;
+            border-radius: 10px;
+            height: 25px;
+        }
+        .edit-btn:hover, .delete-btn:hover{
+            background-color: rgb(122, 132, 85);
+        }
+        .memo-num{
+            display:none;
+        }
+        .memos-yellow, .memos-blue{
+            margin-top: 40px;
+            padding: 15px;
+            position: relative;
+            flex-basis: 27%;
+            margin: 20px;
+        }
+        @media(min-width: 1190px){
+            .memos-yellow, .memos-blue{
+            flex-basis: 28.5%;
+            }
+            #display{
+            margin-top: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: row;
+            }
+        }
+        @media(min-width: 768px) and (max-width: 1189px){
+            .memos-yellow, .memos-blue{
+            flex-basis: 40%;
+            }
+            #display{
+            margin-top: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: row;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>📒메모를 작성하세요✏️</h1>
+    <main>
+        <section class = "memo-section">
+            <img class = "pin" src = "pin.png" alt = "">
+            <label class="label-style" for="memo-title">제목</label>
+            <input class="input-style" id="memo-title" type="text">
+            <label class = "label-style" for = "memo-content">내용</label>
+            <textarea class = "textarea-style" id = "memo-content" cols = "30" rows = "10"></textarea>
+            <button class = "save-btn" onclick = "saveMemo()">저장</button>
+        </section>
+        <section id = "display"></section>
+    </main>
+    <script>
+        const Memotitle = document.querySelector("#memo-title");
+        const Memocontent = document.querySelector("#memo-content");
+        let memoArr = JSON.parse(localStorage.getItem("memoArr"));
+        memoArr = memoArr ?? [];
+        render();
+
+        function saveMemo() {
+            const title = Memotitle.value
+            const content = Memocontent.value
+            // const title = document.querySelector("#memo-title").value;
+            // const content = document.querySelector("#memo-content").value;
+            const date = new Date();
+
+            // 시간 추가
+            memoArr.push({title, content, len:memoArr.length, date});
+
+            localStorage.setItem("memoArr", JSON.stringify(memoArr));
+            render();
+        }
+
+        function render(){
+            const display = document.querySelector("#display");
+            display.innerHTML = "";
+
+            for(const item of memoArr) {
+                // 전체 감싸는 코드
+                const memos = document.createElement("div");
+                //이미지
+                const savePin = document.createElement('img')
+                const saveTitle = document.createElement("h2");
+                const saveContent = document.createElement("p");
+                const saveId = document.createElement("p")
+                const saveDate = document.createElement("p")
+                // const editMemoBtn = document.createElement("button")
+                const deleteMemoBtn = document.createElement("button")
+
+                saveTitle.textContent = item.title;
+                saveContent.textContent = item.content;
+                saveId.textContent = item.len + 1;
+                //시간
+                saveDate.textContent = item.date.toLocaleString();
+                
+                //수정 버튼
+                // editMemoBtn.textContent = "수정";
+                // editMemoBtn.setAttribute("id", item.len);
+                // editMemoBtn.addEventListener("onclick", edit);
+                
+                //삭제 버튼
+                deleteMemoBtn.textContent = "삭제";
+                deleteMemoBtn.setAttribute("id", item.len);
+                deleteMemoBtn.setAttribute("onclick", "remove()");
+
+                // 메모지 색상 다르게
+                if(item.len % 2 === 0){
+                    memos.classList.add('memos-yellow')
+                    savePin.src = "yellowpin.png"
+                }
+                else{
+                    memos.classList.add('memos-blue')
+                    savePin.src = "bluepin.png"
+                }
+
+                // 클래스명 추가
+                // memos.classList.add('memos');
+                savePin.classList.add('savepin');
+                // savePin.src = "yellowpin.png";
+                // editMemoBtn.classList.add('edit-btn');
+                deleteMemoBtn.classList.add('delete-btn');
+                saveId.classList.add('memo-num');
+
+
+                display.appendChild(memos);
+                memos.appendChild(savePin);
+                memos.appendChild(saveId);
+                memos.appendChild(saveTitle);
+                memos.appendChild(saveContent);
+                // memos.appendChild(editMemoBtn);
+                memos.appendChild(deleteMemoBtn);
+                memos.appendChild(saveDate);
+
+                Memotitle.value = "";
+                Memocontent.value = "";
+            }
+        }
+
+        function remove(){
+            const index = memoArr.find(
+                (item) => item.len == event.srcElement.id
+            );
+            if (index) {
+                memoArr.splice(
+                    memoArr.findIndex((item) => item.len ==index.len), 1
+                );
+            }
+            localStorage.setItem("memoArr", JSON.stringify(memoArr));
+            render();
+        }
+
+        // function edit(event){
+        //     const index2 = memoArr.find(
+        //         (item) => item.len == event.srcElement.id
+        //     );
+        //     if(index2){
+        //         memoArr.title
+        //     }
+        // }
+    </script>
+</body>
+</html>
